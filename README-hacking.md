@@ -10,5 +10,7 @@ git submodule update --init
 cd firmware
 mkdir build
 cd build
-PICO_BOARD=remapper cmake ..
+cmake -D PICO_BOARD=pico ..
+
+make remapper
 ```
