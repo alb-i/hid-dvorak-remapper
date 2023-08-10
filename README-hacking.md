@@ -2,6 +2,7 @@
 
 ```
 brew install armmbed/formulae/arm-none-eabi-gcc
+brew install srecord
 
 cd hid-dvorak-remapper
 
