@@ -97,8 +97,10 @@ uint32_t reports_sent;
 bool expression_valid[NEXPRESSIONS] = { false };
 
 std::unordered_map<uint32_t, int32_t> monitor_input_state;
+#ifdef UNSAFE_DEBUG
 uint8_t monitor_usages_queued = 0;
 monitor_report_t monitor_report = { .report_id = REPORT_ID_MONITOR };
+#endif
 
 #define NREGISTERS 32
 int32_t registers[NREGISTERS] = { 0 };
@@ -893,6 +895,7 @@ bool send_report(send_report_t do_send_report) {
     return sent;
 }
 
+#ifdef UNSAFE_DEBUG
 void send_monitor_report(send_report_t do_send_report) {
     if ((monitor_usages_queued == 0) || suspended) {
         return;
@@ -903,13 +906,16 @@ void send_monitor_report(send_report_t do_send_report) {
     memset(&(monitor_report.usage_values), 0, sizeof(monitor_report.usage_values));
     monitor_usages_queued = 0;
 }
+#endif
 
+#ifdef UNSAFE_DEBUG
 void monitor_usage(uint32_t usage, int32_t value) {
     if (monitor_usages_queued == sizeof(monitor_report.usage_values) / sizeof(monitor_report.usage_values[0])) {
         return;
     }
     monitor_report.usage_values[monitor_usages_queued++] = { .usage = usage, .value = value };
 }
+#endif
 
 inline void read_input(const uint8_t* report, int len, uint32_t source_usage, const usage_def_t& their_usage, uint8_t interface_idx) {
     int32_t value = 0;
@@ -960,6 +966,7 @@ inline void read_input_range(const uint8_t* report, int len, uint32_t source_usa
     }
 }
 
+#ifdef UNSAFE_DEBUG
 inline void monitor_read_input(const uint8_t* report, int len, uint32_t source_usage, const usage_def_t& their_usage, uint8_t interface_idx) {
     int32_t value = 0;
     if (their_usage.is_array) {
@@ -1000,6 +1007,7 @@ inline void monitor_read_input(const uint8_t* report, int len, uint32_t source_u
         }
     }
 }
+#endif
 
 inline void monitor_read_input_range(const uint8_t* report, int len, uint32_t source_usage, const usage_def_t& their_usage, uint8_t interface_idx) {
     // is_array and !is_relative is implied
@@ -1213,7 +1221,7 @@ void print_stats() {
 
 #ifdef UNSAFE_DEBUG
 void set_monitor_enabled(bool enabled) {
-    if ( != enabled) {
+    if (monitor_enabled != enabled) {
         monitor_input_state.clear();
         monitor_enabled = enabled;
     }

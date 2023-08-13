@@ -72,7 +72,12 @@ uint8_t const desc_configuration[] = {
 char const* string_desc_arr[] = {
     (const char[]){ 0x09, 0x04 },  // 0: is supported language is English (0x0409)
     "RP2040",                      // 1: Manufacturer
-    "HID Dvorak Remapper XXXX",           // 2: Product
+    #ifdef UNSAFE_DEBUG
+    "HID UNSAFE DEBUG Dvorak Remapper XXXX"
+    #else
+    "HID Dvorak Remapper XXXX"
+    #endif
+    ,           // 2: Product
 };
 
 // Invoked when received GET DEVICE DESCRIPTOR
