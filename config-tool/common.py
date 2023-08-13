@@ -4,7 +4,7 @@ import struct
 import itertools
 
 VENDOR_ID = 0xCAFE
-PRODUCT_ID = 0xBAF2
+PRODUCT_ID = 0xBAF9
 
 CONFIG_USAGE_PAGE = 0xFF00
 CONFIG_USAGE = 0x0020
