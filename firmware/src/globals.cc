@@ -35,4 +35,6 @@ std::vector<std::vector<uint32_t>> macros[NMACROS];
 
 std::vector<expr_elem_t> expressions[NEXPRESSIONS];
 
+#ifdef UNSAFE_DEBUG
 bool monitor_enabled = false;
+#endif

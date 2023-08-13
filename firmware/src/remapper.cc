@@ -1010,9 +1010,11 @@ inline void monitor_read_input_range(const uint8_t* report, int len, uint32_t so
             (bits <= their_usage.logical_minimum + their_usage.usage_maximum - source_usage)) {
             uint32_t actual_usage = source_usage + bits - their_usage.logical_minimum;
             // for array inputs, "key-up" events (value=0) don't show up in the monitor
+            #ifdef UNSAFE_DEBUG
             if (monitor_enabled && ((actual_usage & 0xFFFF) != 0)) {
                 monitor_usage(actual_usage, 1);
             }
+            #endif
         }
     }
 }
@@ -1046,6 +1048,7 @@ void handle_received_report(const uint8_t* report, int len, uint16_t interface, 
         }
     }
 
+    #ifdef UNSAFE_DEBUG
     if (monitor_enabled) {
         for (auto const& [their_usage, their_usage_def] : their_usages[interface][report_id]) {
             if (their_usage_def.usage_maximum == 0) {
@@ -1055,6 +1058,7 @@ void handle_received_report(const uint8_t* report, int len, uint16_t interface, 
             }
         }
     }
+    #endif
 
     my_mutex_exit(MutexId::THEIR_USAGES);
 }
@@ -1207,9 +1211,11 @@ void print_stats() {
     reports_sent = 0;
 }
 
+#ifdef UNSAFE_DEBUG
 void set_monitor_enabled(bool enabled) {
-    if (monitor_enabled != enabled) {
+    if ( != enabled) {
         monitor_input_state.clear();
         monitor_enabled = enabled;
     }
 }
+#endif

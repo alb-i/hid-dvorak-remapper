@@ -39,13 +39,44 @@ add_executable(remapper
     src/activity_led.cc
 )
 
+add_executable(remapper_debug
+    src/main.cc
+    src/remapper.cc
+    src/remapper_single.cc
+    src/crc.cc
+    src/descriptor_parser.cc
+    src/tinyusb_stuff.cc
+    src/our_descriptor.cc
+    src/globals.cc
+    src/config.cc
+    src/quirks.cc
+    src/interval_override.cc
+    src/out_report.cc
+    src/tick.cc
+    src/activity_led.cc
+)
+
+target_compile_definitions(remapper_debug PUBLIC UNSAFE_DEBUG=1)
+
+
 if(PICO_BOARD STREQUAL "pico")
 target_compile_definitions(remapper PUBLIC PICO_DEFAULT_UART_TX_PIN=16)
 target_compile_definitions(remapper PUBLIC PICO_DEFAULT_UART_RX_PIN=17)
 target_compile_definitions(remapper PUBLIC PICO_DEFAULT_PIO_USB_DP_PIN=0)
+
+
+target_compile_definitions(remapper_debug PUBLIC PICO_DEFAULT_UART_TX_PIN=16)
+target_compile_definitions(remapper_debug PUBLIC PICO_DEFAULT_UART_RX_PIN=17)
+target_compile_definitions(remapper_debug PUBLIC PICO_DEFAULT_PIO_USB_DP_PIN=0)
 endif()
 
 target_include_directories(remapper PRIVATE
+    src
+    src/tusb_config_both
+    ${PICO_PIO_USB_PATH}
+)
+
+target_include_directories(remapper_debug PRIVATE
     src
     src/tusb_config_both
     ${PICO_PIO_USB_PATH}
@@ -64,96 +95,114 @@ target_link_libraries(remapper
     tinyusb_pico_pio_usb
 )
 
+target_link_libraries(remapper_debug
+    pico_stdlib
+    pico_multicore
+    pico_unique_id
+    hardware_pio
+    hardware_dma
+    hardware_flash
+    tinyusb_device
+    tinyusb_host
+    tinyusb_board
+    tinyusb_pico_pio_usb
+)
+
+
 pico_set_binary_type(remapper copy_to_ram)
 pico_add_extra_outputs(remapper)
 
 
-add_executable(remapper_dual_a
-    src/main.cc
-    src/remapper.cc
-    src/remapper_dual_a.cc
-    src/crc.cc
-    src/descriptor_parser.cc
-    src/tinyusb_stuff.cc
-    src/our_descriptor.cc
-    src/globals.cc
-    src/config.cc
-    src/quirks.cc
-    src/interval_override.cc
-    src/serial.cc
-    src/tick.cc
-    src/activity_led.cc
-    src/pico_debug/swd.c
-    src/pico_debug/flash.c
-    src/pico_debug/adi.c
-    dual_b_binary.c
-)
-target_include_directories(remapper_dual_a PRIVATE
-    src
-    src/tusb_config_device
-    src/pico_debug
-)
-target_link_libraries(remapper_dual_a
-    pico_stdlib
-    hardware_flash
-    hardware_pio
-    tinyusb_device
-    tinyusb_board
-    pico_unique_id
-)
-pico_generate_pio_header(remapper_dual_a ${CMAKE_CURRENT_LIST_DIR}/src/pico_debug/swd.pio)
-pico_add_extra_outputs(remapper_dual_a)
+pico_set_binary_type(remapper_debug copy_to_ram)
+pico_add_extra_outputs(remapper_debug)
 
-add_executable(remapper_dual_b
-    src/remapper_dual_b.cc
-    src/crc.cc
-    src/interval_override.cc
-    src/serial.cc
-    src/out_report.cc
-    src/activity_led.cc
-)
-target_include_directories(remapper_dual_b PRIVATE
-    src
-    src/tusb_config_host
-)
-target_link_libraries(remapper_dual_b
-    pico_stdlib
-    tinyusb_host
-    tinyusb_board
-)
-pico_add_extra_outputs(remapper_dual_b)
 
-add_custom_command(
-  OUTPUT dual_b_binary.c dual_b_binary.h
-  DEPENDS remapper_dual_b
-  COMMAND srec_cat remapper_dual_b.hex -Intel -Output dual_b_binary.c -C-Array dual_b_binary -INClude
-  VERBATIM
-)
+#add_executable(remapper_dual_a
+#    src/main.cc
+#    src/remapper.cc
+#    src/remapper_dual_a.cc
+#    src/crc.cc
+#    src/descriptor_parser.cc
+#    src/tinyusb_stuff.cc
+#    src/our_descriptor.cc
+#    src/globals.cc
+#    src/config.cc
+#    src/quirks.cc
+#    src/interval_override.cc
+#    src/serial.cc
+#    src/tick.cc
+#    src/activity_led.cc
+#    src/pico_debug/swd.c
+#    src/pico_debug/flash.c
+#    src/pico_debug/adi.c
+#    dual_b_binary.c
+#)
+#target_include_directories(remapper_dual_a PRIVATE
+#    src
+#    src/tusb_config_device
+#    src/pico_debug
+#)
+#target_link_libraries(remapper_dual_a
+#    pico_stdlib
+#    hardware_flash
+#    hardware_pio
+#    tinyusb_device
+#    tinyusb_board
+#    pico_unique_id
+#)
+#pico_generate_pio_header(remapper_dual_a ${CMAKE_CURRENT_LIST_DIR}/src/pico_debug/swd.pio)
+#pico_add_extra_outputs(remapper_dual_a)
 
-add_executable(remapper_serial
-    src/main.cc
-    src/remapper.cc
-    src/remapper_serial.cc
-    src/crc.cc
-    src/descriptor_parser.cc
-    src/tinyusb_stuff.cc
-    src/our_descriptor.cc
-    src/globals.cc
-    src/config.cc
-    src/quirks.cc
-    src/interval_override.cc
-    src/tick.cc
-    src/activity_led.cc
-)
-target_include_directories(remapper_serial PRIVATE
-    src
-    src/tusb_config_device
-)
-target_link_libraries(remapper_serial
-    pico_stdlib
-    pico_unique_id
-    hardware_flash
-    tinyusb_device
-    tinyusb_board
-)
-pico_add_extra_outputs(remapper_serial)
+#add_executable(remapper_dual_b
+#    src/remapper_dual_b.cc
+#    src/crc.cc
+#    src/interval_override.cc
+#    src/serial.cc
+#    src/out_report.cc
+#    src/activity_led.cc
+#)
+#target_include_directories(remapper_dual_b PRIVATE
+#    src
+#    src/tusb_config_host
+#)
+#target_link_libraries(remapper_dual_b
+#    pico_stdlib
+#    tinyusb_host
+#    tinyusb_board
+#)
+#pico_add_extra_outputs(remapper_dual_b)
+#
+#add_custom_command(
+#  OUTPUT dual_b_binary.c dual_b_binary.h
+#  DEPENDS remapper_dual_b
+#  COMMAND srec_cat remapper_dual_b.hex -Intel -Output dual_b_binary.c -C-Array dual_b_binary -INClude
+#  VERBATIM
+#)
+
+#add_executable(remapper_serial
+#    src/main.cc
+#    src/remapper.cc
+#    src/remapper_serial.cc
+#    src/crc.cc
+#    src/descriptor_parser.cc
+#    src/tinyusb_stuff.cc
+#    src/our_descriptor.cc
+#    src/globals.cc
+#    src/config.cc
+#    src/quirks.cc
+#    src/interval_override.cc
+#    src/tick.cc
+#    src/activity_led.cc
+#)
+#target_include_directories(remapper_serial PRIVATE
+#    src
+#    src/tusb_config_device
+#)
+#target_link_libraries(remapper_serial
+#    pico_stdlib
+#    pico_unique_id
+#    hardware_flash
+#    tinyusb_device
+#    tinyusb_board
+#)
+#pico_add_extra_outputs(remapper_serial)

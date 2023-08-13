@@ -573,8 +573,10 @@ void handle_set_report(uint8_t report_id, uint8_t const* buffer, uint16_t bufsiz
                     break;
                 }
                 case ConfigCommand::SET_MONITOR_ENABLED: {
+                    #ifdef UNSAFE_DEBUG
                     monitor_t* monitor = (monitor_t*) config_buffer->data;
                     set_monitor_enabled(monitor->enabled);
+                    #endif
                     break;
                 }
                 default:

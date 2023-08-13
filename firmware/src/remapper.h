@@ -23,8 +23,11 @@ void send_out_report();
 void send_monitor_report(send_report_t do_send_report);
 void print_stats();
 
+#ifdef UNSAFE_DEBUG
 void set_monitor_enabled(bool enabled);
 void monitor_usage(uint32_t usage, int32_t value);
+#endif
+
 
 void sof_callback();
 

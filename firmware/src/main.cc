@@ -76,9 +76,11 @@ bool read_gpio(uint64_t now) {
                     uint32_t usage = GPIO_USAGE_PAGE | i;
                     int32_t state = !(gpio_state & bit);  // active low
                     set_input_state(usage, state);
+                    #ifdef UNSAFE_DEBUG
                     if (monitor_enabled) {
                         monitor_usage(usage, state);
                     }
+                    #endif
                     last_gpio_change[i] = now;
                 } else {
                     // ignore this change
@@ -183,9 +185,11 @@ int main() {
         if (tud_hid_n_ready(0)) {
             send_report(do_send_report);
         }
+        #ifdef UNSAFE_DEBUG
         if (monitor_enabled && tud_hid_n_ready(1)) {
             send_monitor_report(do_send_report);
         }
+        #endif
         send_out_report();
         if (need_to_persist_config) {
             persist_config();
