@@ -145,22 +145,34 @@ uint64_t get_unique_id() {
 
 int main() {
     my_mutexes_init();
-    gpio_pins_init();
-    tick_init();
+    gpio_pins_init(); /* What are we even doing with GPIO PINS 2 through 9? The USB-Keyboard is connected to PINS 0 and 1... */
+    tick_init(); /* initializes the tick_pending spinlock */
     
     parse_our_descriptor();
+
     load_config(FLASH_CONFIG_IN_MEMORY);
+
     set_mapping_from_config();
 
+    /* tiny usb setup */
     board_init();
+    /* configure the PINs used to connect the keyboard */
     extra_init();
+    /* tiny usb setup (pt.2)*/
     tusb_init();
+    /* pico stdio init (used to send debug messages with printf) */
     stdio_init_all();
 
     /* sof = Start Of Frame */
     tud_sof_isr_set(sof_handler);
 
     next_print = time_us_64() + 1000000;
+
+    /**
+     * NOTE: tinyUSB has defined default callbacks with __attribute__((weak)) set,
+     *       which means these callbacks will be overridden by just defining them
+     *       as non-weak functions (!). Thus, there is no register callback to be found.
+     */
 
     while (true) {
         bool tick;
@@ -201,6 +213,7 @@ int main() {
         if (tud_hid_n_ready(0)) {
             send_report(do_send_report);
         }
+
         #ifdef UNSAFE_DEBUG
         if (monitor_enabled && tud_hid_n_ready(1)) {
             send_monitor_report(do_send_report);
