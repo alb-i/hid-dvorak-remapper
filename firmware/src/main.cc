@@ -196,8 +196,10 @@ int main() {
             need_to_persist_config = false;
         }
 
+        /* print number of received and sent reports every now and then */
         print_stats_maybe();
 
+        /* turns off the activity led if it has been on for long enough */
         activity_led_off_maybe();
     }
 
