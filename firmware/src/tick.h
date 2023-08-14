@@ -1,3 +1,6 @@
+/* This file handles the tick_pending boolean flag and the corresponding multi-threaded access logic (spinlock) */
+
+
 #ifndef _TICK_H_
 #define _TICK_H_
 

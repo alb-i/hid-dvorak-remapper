@@ -1,3 +1,5 @@
+/* This file handles the tick_pending boolean flag and the corresponding multi-threaded access logic (spinlock) */
+
 #include "tick.h"
 
 #include <pico/critical_section.h>

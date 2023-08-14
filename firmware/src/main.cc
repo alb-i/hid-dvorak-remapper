@@ -147,14 +147,17 @@ int main() {
     my_mutexes_init();
     gpio_pins_init();
     tick_init();
+    
     parse_our_descriptor();
     load_config(FLASH_CONFIG_IN_MEMORY);
     set_mapping_from_config();
+
     board_init();
     extra_init();
     tusb_init();
     stdio_init_all();
 
+    /* sof = Start Of Frame */
     tud_sof_isr_set(sof_handler);
 
     next_print = time_us_64() + 1000000;
@@ -162,14 +165,23 @@ int main() {
     while (true) {
         bool tick;
         bool new_report;
+
+        /* tick <- need to process a new GPIO tick later(?)
+           new_report <- what is a report? hmm...
+
+           also calls tuh_task() [Tiny USB Host tasks]
+        */
         read_report(&new_report, &tick);
+        
         if (new_report) {
             activity_led_on();
         }
+
         if (their_descriptor_updated) {
             update_their_descriptor_derivates();
             their_descriptor_updated = false;
         }
+
         if (tick) {
             bool gpio_state_changed = read_gpio(time_us_64());
             if (gpio_state_changed) {
@@ -177,11 +189,15 @@ int main() {
             }
             process_mapping(true);
         }
+        
+        /* Tiny USB Device tasks */
         tud_task();
+
         if (config_updated) {
             set_mapping_from_config();
             config_updated = false;
         }
+
         if (tud_hid_n_ready(0)) {
             send_report(do_send_report);
         }
@@ -190,7 +206,10 @@ int main() {
             send_monitor_report(do_send_report);
         }
         #endif
+
+        /* sends out some queued reports */
         send_out_report();
+
         if (need_to_persist_config) {
             persist_config();
             need_to_persist_config = false;

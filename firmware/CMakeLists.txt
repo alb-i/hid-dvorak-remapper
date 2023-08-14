@@ -23,20 +23,20 @@ add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
 
 
 add_executable(remapper
-    src/main.cc
-    src/remapper.cc
-    src/remapper_single.cc
+    src/activity_led.cc
+    src/config.cc
     src/crc.cc
     src/descriptor_parser.cc
-    src/tinyusb_stuff.cc
-    src/our_descriptor.cc
     src/globals.cc
-    src/config.cc
-    src/quirks.cc
     src/interval_override.cc
+    src/main.cc
+    src/our_descriptor.cc
     src/out_report.cc
+    src/quirks.cc
+    src/remapper_single.cc
+    src/remapper.cc
     src/tick.cc
-    src/activity_led.cc
+    src/tinyusb_stuff.cc
 )
 
 add_executable(remapper_debug
