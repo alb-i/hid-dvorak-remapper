@@ -1027,6 +1027,7 @@ inline void monitor_read_input_range(const uint8_t* report, int len, uint32_t so
     }
 }
 
+// called by the tuh_hid_report_received_cb handler (tinyusb), upper 8 bit of interface is device id, lower is instance id
 void handle_received_report(const uint8_t* report, int len, uint16_t interface, uint8_t external_report_id) {
     reports_received++;
 

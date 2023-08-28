@@ -32,6 +32,11 @@ void interval_override_updated() {
 void flash_b_side() {
 }
 
+// Invoked when device with hid interface is mounted
+// Report descriptor is also available for use. tuh_hid_parse_report_descriptor()
+// can be used to parse common/simple enough descriptor.
+// Note: if report descriptor length > CFG_TUH_ENUMERATION_BUFSIZE, it will be skipped
+// therefore report_desc = NULL, desc_len = 0
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* desc_report, uint16_t desc_len) {
     printf("tuh_hid_mount_cb\n");
 
@@ -48,7 +53,8 @@ void tuh_hid_umount_cb(uint8_t dev_addr, uint8_t instance) {
     printf("tuh_hid_umount_cb\n");
     clear_descriptor_data(dev_addr);
 }
-
+// Invoked when received report from device via interrupt endpoint
+// Note: if there is report ID (composite), it is 1st byte of report
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t instance, uint8_t const* report, uint16_t len) {
     if (len > 0) {
         handle_received_report(report, len, (uint16_t) (dev_addr << 8) | instance);
