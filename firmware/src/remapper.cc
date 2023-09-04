@@ -917,6 +917,9 @@ void monitor_usage(uint32_t usage, int32_t value) {
 }
 #endif
 
+/*
+ * reads an input that has been obtained from the connected HID, if usage_maximum == 0
+ */
 inline void read_input(const uint8_t* report, int len, uint32_t source_usage, const usage_def_t& their_usage, uint8_t interface_idx) {
     int32_t value = 0;
     if (their_usage.is_array) {
@@ -950,6 +953,10 @@ inline void read_input(const uint8_t* report, int len, uint32_t source_usage, co
     }
 }
 
+/*
+ * reads an input that has been obtained from the connected HID, if usage_maximum != 0
+ *
+ */
 inline void read_input_range(const uint8_t* report, int len, uint32_t source_usage, const usage_def_t& their_usage, uint8_t interface_idx) {
     // is_array and !is_relative is implied
     for (unsigned int i = 0; i < their_usage.count; i++) {
